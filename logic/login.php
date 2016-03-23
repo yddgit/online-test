@@ -9,34 +9,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$identity_card = check_input($_POST["identity_card"]);
 
 	if(is_test($identity_card)) {
-		forward_page("../score.php?identity_card={$identity_card}", true, ErrorMessage::INFO, "已经参加过测试，可直接查看分数");
+		$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
+		$data['identity_card'] = $identity_card;
+		load_view("../score.php", "post", true, $data);
 		return;
 	} else {
 		if(!is_exist($identity_card)) {
 			$sql = "INSERT INTO m_user (name, identity_card, org_name, dept_id, is_test)"
 				." VALUES ('%s', '%s', '%s', '%d', 0)";
-			$result = exec_sql($sql, array($user_name, $identity_card, $org_name, $dept_id));
+			exec_sql($sql, array($user_name, $identity_card, $org_name, $dept_id));
 		}
-		forward_page("../test.php?identity_card={$identity_card}", false);
+		$data = array('identity_card' => $identity_card);
+		load_view("../test.php", "post", false, $data);
 		return;
 	}
 } else {
-	forward_page("../error.php", true, ErrorMessage::DANGER, "没有操作权限。", "index.php", "请重新登录");
+	$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
+	load_view("../error.php", "post", true, $data);
 	return;
-}
-
-function is_test($identity_card) {
-	$sql = "SELECT count(*) AS count FROM m_user AS t1 WHERE t1.identity_card = '%s' AND t1.is_test = 1";
-	$result = exec_sql($sql, $identity_card);
-	$count = mysql_fetch_array ( $result )['count'];
-	return $count > 0 ? true : false;
-}
-
-function is_exist($identity_card) {
-	$sql = "SELECT count(*) AS count FROM m_user AS t1 WHERE t1.identity_card = '%s'";
-	$result = exec_sql($sql, $identity_card);
-	$count = mysql_fetch_array ( $result )['count'];
-	return $count > 0 ? true : false;
 }
 
 require '../common/close_conn.inc.php';

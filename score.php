@@ -4,8 +4,8 @@ require 'common/open_conn.inc.php';
 
 $is_get_score = false;
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-	$identity_card = check_input($_GET["identity_card"]);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	$identity_card = check_input($_POST["identity_card"]);
 	if($identity_card) {
 		$sql = "SELECT"
 					." t1.id AS id,"
@@ -30,7 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 }
 
 if(!$is_get_score) {
-	header("refresh:0;url=index.php?identity_card={$identity_card}");
+	$data = get_error_info(MessageType::DANGER, "暂未没有找到成绩记录。", "index.php", "返回登录页面");
+	load_view("error.php", "post", true, $data);
 	return;
 }
 
@@ -45,6 +46,7 @@ if(!$is_get_score) {
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
+	<?php show_error_info(); ?>
 	<div class="alert alert-danger" role="alert"><a href="#" class="alert-link">...</a></div>
 	<div class="center-panel score-panel">
 		<h2 class="text-center score-title">测试成绩</h2>

@@ -1,4 +1,32 @@
-<?php require 'common/open_conn.inc.php'; ?>
+<?php
+
+require 'common/open_conn.inc.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+	$identity_card = check_input($_POST["identity_card"]);
+
+	if(is_test($identity_card)) {
+		$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
+		$data['identity_card'] = $identity_card;
+		load_view("score.php", "post", true, $data);
+		return;
+	} else {
+		if(!is_exist($identity_card)) {
+			$data = get_error_info(MessageType::DANGER, "您还未登录过本系统。", "index.php", "请先登录");
+			load_view("error.php", "post", true, $data);
+			return;
+		}
+	}
+} else {
+	$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
+	load_view("error.php", "post", true, $data);
+	return;
+}
+
+//TODO 随机查询一份试卷并显示
+
+?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -9,10 +37,11 @@
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
-	<div class="login-form">
+	<?php show_error_info(); ?>
+	<div class="center-panel test-form ">
 	<form action="logic/login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
 		<div class="form-group">
-			<h2 class="text-center form-title">试卷（类型：A卷）</h2>
+			<h2 class="text-center test-title">试卷（类型：A卷）<?php echo $identity_card; ?></h2>
 		</div>
 		<div class="form-group">
 			<label for="org_name" class="col-sm-2 control-label">单位名称</label>
@@ -48,7 +77,7 @@
 		</div>
 		<div class="form-group">
 			<div class="text-center">
-				<button type="submit" class="btn btn-primary">开始考试</button>
+				<button type="submit" class="btn btn-warning">确认提交</button>
 			</div>
 		</div>
 	</form>

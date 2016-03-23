@@ -16,20 +16,29 @@ if (!$conn) {
 // 选择数据库
 mysql_select_db($db_name, $conn);
 
+/**
+ * 执行SQL语句
+ * @param string $sql
+ * @param array $args
+ * @return mixed
+ */
 function exec_sql($sql, $args) {
 	$query = prepare($sql, $args);
 	$result = mysql_query( $query );
 	return $result;
 }
 
+/**
+ * 构造SQL语句
+ * @param string $query
+ * @param array $args
+ */
 function prepare( $query, $args ) {
 	if ( is_null( $query ) ) {
 		return;
 	}
-
-	// This is not meant to be foolproof -- but it will catch obviously incorrect usage.
 	if ( strpos( $query, '%' ) === false ) {
-		//TODO error handler;
+		load_view("../error.php", "post", true, $data);
 	}
 
 	$escape_by_ref = function ( &$string ) {
@@ -55,6 +64,11 @@ function prepare( $query, $args ) {
 	return @ vsprintf( $query, $args );
 }
 
+/**
+ * 检查参数值
+ * @param string $data
+ * @return string
+ */
 function check_input($data) {
 	$data = trim($data);
 	$data = stripslashes($data);
@@ -62,86 +76,120 @@ function check_input($data) {
 	return $data;
 }
 
-
-class ErrorMessage {
-	
+/**
+ * 错误信息类型
+ * @author yang
+ */
+class MessageType {
 	const SUCCESS = "success";
 	const INFO = "info";
 	const WARNING = "warning";
 	const DANGER = "danger";
+}
 
-	private $type; //success, info, warning, danger
-	private $message;
-	private $redirect_url;
-	private $redirect_url_text;
+/**
+ * 构造错误信息
+ * @param string $msg_type
+ * @param string $msg_content
+ * @param string $redirect_url
+ * @param string $redirect_url_text
+ * @return array
+ */
+function get_error_info($msg_type, $msg_content, $redirect_url, $redirect_url_text) {
+	$error_msg = array();
+	$error_msg['msg_type'] = $msg_type;
+	$error_msg['msg_content'] = base64_encode($msg_content);
 
-	private function __get($property_name) {
-		if (isset ( $this->$property_name )) {
-			return ($this->$property_name);
+	$args = func_get_args();
+	if ( isset( $args[2] ) ) {
+		$error_msg['redirect_url'] = base64_encode($redirect_url);
+	} else {
+		$error_msg['redirect_url'] = FALSE;
+	}
+	if ( isset( $args[3] ) ) {
+		$error_msg['redirect_url_text'] = base64_encode($redirect_url_text);
+	} else {
+		$error_msg['redirect_url_text'] = FALSE;
+	}
+
+	return $error_msg;
+}
+
+/**
+ * 页面跳转
+ * @param string $url
+ * @param string $method
+ * @param string $is_error
+ * @param string $data
+ */
+function load_view($url, $method, $is_error, $data = array()) {
+	echo "<form style='display:none;' id='load_view_form' name='load_view_form' method='{$method}' action='{$url}'>";
+	if(isset($data) && is_array($data) && count($data) > 0) {
+		foreach ($data as $key => $value) {
+			echo "<input name='{$key}' id='{$key}' type='hidden' value='{$value}' />";
+		}
+	}
+	echo "<input name='is_error' id='is_error' type='hidden' value='{$is_error}' />";
+	echo "</form>";
+	echo "<script type='text/javascript'>function load_submit(){document.load_view_form.submit();}load_submit();</script>";
+}
+
+/**
+ * 显示错误信息
+ */
+function show_error_info() {
+
+	if ($_SERVER["REQUEST_METHOD"] == "GET") {
+		$data = $_GET;
+	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		$data = $_POST;
+	}
+
+	if(!isset($data['is_error'])) {
+		return;
+	}
+
+	$is_error = $data['is_error'];
+	if(!$is_error) {
+		return;
+	}
+
+	$msg_type = $data['msg_type'];
+	$msg_content = base64_decode($data['msg_content']);
+	$redirect_url = base64_decode($data['redirect_url']);
+	$redirect_url_text = base64_decode($data['redirect_url_text']);
+
+	if(!$redirect_url) {
+		echo "<div class=\"alert alert-" . $msg_type . "\" role=\"alert\">" . $msg_content . "</div>";
+	} else {
+		if(!$redirect_url_text) {
+			echo "<div class=\"alert alert-" . $msg_type . "\" role=\"alert\">" . $msg_content . "<a href=\"" . $redirect_url . "\" class=\"alert-link\">点击跳转</a></div>";
 		} else {
-			return (NULL);
+			echo "<div class=\"alert alert-" . $msg_type . "\" role=\"alert\">" . $msg_content . "<a href=\"" . $redirect_url . "\" class=\"alert-link\">" . $redirect_url_text . "</a></div>";
 		}
-	}
-
-	private function __set($property_name, $value) {
-		$this->$property_name = $value;
-	}
-
-	function &getInstance() {
-		static $me;
-		if (is_object($me) == true) {
-			return $me;
-		}
-		$me = new ErrorMessage;
-		return $me;
 	}
 }
 
-function set_error_info($type, $message, $redirect_url, $redirect_url_text) {
-	$error_msg = $GLOBALS['error_msg'];
-	$error_msg->type = $type;
-	$error_msg->message = $message;
-
-	$args = func_get_args(); //0->type
-	array_shift( $args ); //0->message
-	array_shift( $args ); //0->redirect_url
-	if ( isset( $args[0] ) ) {
-		$error_msg->redirect_url = $redirect_url;
-	} else {
-		$error_msg->redirect_url = false;
-	}
-
-	array_shift( $args ); //0->redirect_url_text
-	if ( isset( $args[0] ) ) {
-		$error_msg->redirect_url_text = $redirect_url_text;
-	} else {
-		$error_msg->redirect_url_text = false;
-	}
-
-	return;
+/**
+ * 用户是否参加过测试
+ * @param string $identity_card
+ * @return boolean
+ */
+function is_test($identity_card) {
+	$sql = "SELECT count(*) AS count FROM m_user AS t1 WHERE t1.identity_card = '%s' AND t1.is_test = 1";
+	$result = exec_sql($sql, $identity_card);
+	$count = mysql_fetch_array ( $result )['count'];
+	return $count > 0 ? true : false;
 }
 
-function forward_page($url, $is_error, $type, $message, $redirect_url, $redirect_url_text) {
-	if($is_error) {
-		set_error_info($type, $message, $redirect_url, $redirect_url_text);
-	}
-	header("refresh:0;url={$url}");
-}
-
-function get_error_info() {
-
-	$error_msg = & ErrorMessage::getInstance();
-
-	$error_text = "";
-	if(!$error_msg->redirect_url) {
-		$error_text = "<div class=\"alert alert-" . $error_msg->type . "\" role=\"alert\">" . $error_msg->message . "</div>";
-	} else {
-		if(!$error_msg->redirect_url_text) {
-			$error_text = "<div class=\"alert alert-" . $error_msg->type . "\" role=\"alert\">" . $error_msg->message . "<a href=\"" . $error_msg->redirect_url . "\" class=\"alert-link\">" . $error_msg->redirect_url . "</a></div>";
-		} else {
-			$error_text = "<div class=\"alert alert-" . $error_msg->type . "\" role=\"alert\">" . $error_msg->message . "<a href=\"" . $error_msg->redirect_url . "\" class=\"alert-link\">" . $error_msg->redirect_url_text . "</a></div>";
-		}
-	}
-
-	return $error_text;
+/**
+ * 用户是否存在
+ * @param string $identity_card
+ * @return boolean
+ */
+function is_exist($identity_card) {
+	$sql = "SELECT count(*) AS count FROM m_user AS t1 WHERE t1.identity_card = '%s'";
+	$result = exec_sql($sql, $identity_card);
+	$count = mysql_fetch_array ( $result )['count'];
+	return $count > 0 ? true : false;
 }

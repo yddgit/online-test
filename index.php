@@ -9,6 +9,7 @@
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
+	<?php show_error_info(); ?>
 	<div class="center-panel login-form">
 	<form action="logic/login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
 		<div class="form-group">
