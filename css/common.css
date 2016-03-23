@@ -1,0 +1,37 @@
+@CHARSET "UTF-8";
+.formError .formErrorContent, .formError .formErrorArrow div {
+	background-color: #EFA39D;
+}
+.center-panel {
+	margin: 0 auto;
+}
+.form-title {
+	font-weight: 900;
+}
+.login-form {
+	width: 500px;
+	margin-top: 100px;
+}
+.score-title {
+	color: #4054A2;
+	font-weight: 900;
+	margin-bottom: 20px;
+}
+.score-panel {
+	width: 300px;
+	margin-top: 50px;
+}
+.test-title {
+	color: #4054A2;
+	font-weight: 900;
+}
+.test-form {
+	width: 800px;
+}
+.dl-horizontal dt {
+	width: 80px;
+	color: #657FE4;
+}
+.dl-horizontal dd {
+	margin-left: 100px;
+}
