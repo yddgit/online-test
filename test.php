@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>登录考试系统</title>
+<title>正在测试</title>
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
-	<div class="center-panel login-form">
+	<div class="login-form">
 	<form action="logic/login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
 		<div class="form-group">
-			<h2 class="text-center form-title">考试系统</h2>
+			<h2 class="text-center form-title">试卷（类型：A卷）</h2>
 		</div>
 		<div class="form-group">
 			<label for="org_name" class="col-sm-2 control-label">单位名称</label>
@@ -27,7 +27,7 @@
 				<option></option>
 				<?php
 				$result = exec_sql( "SELECT t1.id, t1.`name` FROM m_dept AS t1 WHERE t1.valid_flag = '%s'", "1" );
-				while ( $row = mysql_fetch_array( $result ) ) {
+				while ( $row = mysql_fetch_array ( $result ) ) {
 					echo '<option value="' . $row ['id'] . '">' . $row ['name'] . "</option>\n";
 				}
 				?>
