@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+.login-form {
+	margin: 0 auto;
+	width: 500px;
+	height: 300px;
+	margin-top: 100px;
+}
+.form-title {
+	font-weight: 900;
+}
+.formError .formErrorContent, .formError .formErrorArrow div {
+	background-color: #EFA39D;
+}
