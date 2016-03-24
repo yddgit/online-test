@@ -197,3 +197,16 @@ function is_exist($identity_card) {
 	$count = mysql_fetch_array ( $result )['count'];
 	return $count > 0 ? true : false;
 }
+
+/**
+ * HTTP请求的检查
+ */
+function has_auth($method) {
+	if($_SERVER["REQUEST_METHOD"] != $method) {
+		$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
+		load_view("view_error.php", "post", true, $data);
+		return false;
+	} else {
+		return true;
+	}
+}

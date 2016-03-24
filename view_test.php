@@ -2,26 +2,21 @@
 
 require 'common/open_conn.inc.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if(!has_auth("POST")) { return; }
 
-	$identity_card = check_input($_POST["identity_card"]);
+$identity_card = check_input($_POST["identity_card"]);
 
-	if(is_test($identity_card)) {
-		$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
-		$data['identity_card'] = $identity_card;
-		load_view("view_score.php", "post", true, $data);
-		return;
-	} else {
-		if(!is_exist($identity_card)) {
-			$data = get_error_info(MessageType::DANGER, "您还未登录过本系统。", "index.php", "请先登录");
-			load_view("view_error.php", "post", true, $data);
-			return;
-		}
-	}
-} else {
-	$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
-	load_view("view_error.php", "post", true, $data);
+if(is_test($identity_card)) {
+	$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
+	$data['identity_card'] = $identity_card;
+	load_view("view_score.php", "post", true, $data);
 	return;
+} else {
+	if(!is_exist($identity_card)) {
+		$data = get_error_info(MessageType::DANGER, "您还未登录过本系统。", "index.php", "请先登录");
+		load_view("view_error.php", "post", true, $data);
+		return;
+	}
 }
 
 $sql = "SELECT t1.id, t1.paper_name FROM m_test_paper AS t1 ORDER BY rand() LIMIT %d";

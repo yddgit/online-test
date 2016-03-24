@@ -2,30 +2,30 @@
 
 require 'common/open_conn.inc.php';
 
-$is_get_score = false;
+if(!has_auth("POST")) { return; }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	$identity_card = check_input($_POST["identity_card"]);
-	if($identity_card) {
-		$sql = "SELECT".
-					" t1.id AS id,".
-					" t2.name AS user_name,".
-					" t4.paper_name AS paper_name,".
-					" t1.score AS score,".
-					" DATE_FORMAT(t1.test_date,'%Y-%m-%d %H:%i:%s') AS test_date,".
-					" t2.org_name AS org_name,".
-					" t3.name AS dept_name".
-				" FROM t_score AS t1".
-				" LEFT JOIN m_user AS t2 ON t1.user_id = t2.id".
-				" LEFT JOIN m_dept AS t3 ON t2.dept_id = t3.id".
-				" LEFT JOIN m_test_paper AS t4 ON t1.test_paper_id = t4.id".
-				" WHERE t2.identity_card = '%s'";
-		$result = exec_sql($sql, $identity_card);
-		$row = mysql_fetch_array($result);
-		
-		if(!empty($row)) {
-			$is_get_score = true;
-		}
+$is_get_score = false;
+$identity_card = check_input($_POST["identity_card"]);
+
+if($identity_card) {
+	$sql = "SELECT".
+				" t1.id AS id,".
+				" t2.name AS user_name,".
+				" t4.paper_name AS paper_name,".
+				" t1.score AS score,".
+				" DATE_FORMAT(t1.test_date,'%Y-%m-%d %H:%i:%s') AS test_date,".
+				" t2.org_name AS org_name,".
+				" t3.name AS dept_name".
+			" FROM t_score AS t1".
+			" LEFT JOIN m_user AS t2 ON t1.user_id = t2.id".
+			" LEFT JOIN m_dept AS t3 ON t2.dept_id = t3.id".
+			" LEFT JOIN m_test_paper AS t4 ON t1.test_paper_id = t4.id".
+			" WHERE t2.identity_card = '%s'";
+	$result = exec_sql($sql, $identity_card);
+	$row = mysql_fetch_array($result);
+	
+	if(!empty($row)) {
+		$is_get_score = true;
 	}
 }
 

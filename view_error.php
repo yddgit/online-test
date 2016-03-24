@@ -2,13 +2,9 @@
 
 require 'common/open_conn.inc.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-	$data = $_GET;
-} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	$data = $_POST;
-}
+if(!has_auth("POST")) { return; }
 
-if(!isset($data['is_error'])) {
+if(!isset($_POST['is_error'])) {
 	load_view("index.php", "post", false);
 	return;
 }
