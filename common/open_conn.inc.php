@@ -38,7 +38,7 @@ function prepare( $query, $args ) {
 		return;
 	}
 	if ( strpos( $query, '%' ) === false ) {
-		load_view("../error.php", "post", true, $data);
+		load_view("error.php", "post", true, $data);
 	}
 
 	$escape_by_ref = function ( &$string ) {
@@ -81,9 +81,13 @@ function check_input($data) {
  * @author yang
  */
 class MessageType {
+	/** 成功信息 */
 	const SUCCESS = "success";
+	/** 提示信息 */
 	const INFO = "info";
+	/** 警告信息 */
 	const WARNING = "warning";
+	/** 错误信息 */
 	const DANGER = "danger";
 }
 

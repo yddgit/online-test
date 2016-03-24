@@ -197,7 +197,6 @@ CREATE TABLE `t_score` (
   `user_id` int(11) NOT NULL COMMENT '用户ID',
   `test_paper_id` int(11) NOT NULL COMMENT '试卷ID',
   `score` int(11) NOT NULL DEFAULT '0' COMMENT '用户得分',
-  `level` varchar(255) NOT NULL DEFAULT '' COMMENT '得分等级',
   `test_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '测试时间',
   PRIMARY KEY (`id`),
   KEY `FK_SCORE_USER_ID` (`user_id`),

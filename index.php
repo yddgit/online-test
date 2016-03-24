@@ -11,7 +11,7 @@
 <body>
 	<?php show_error_info(); ?>
 	<div class="center-panel login-form">
-	<form action="logic/login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
+	<form action="login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
 		<div class="form-group">
 			<h2 class="text-center form-title">考试系统</h2>
 		</div>

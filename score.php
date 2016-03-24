@@ -7,19 +7,19 @@ $is_get_score = false;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$identity_card = check_input($_POST["identity_card"]);
 	if($identity_card) {
-		$sql = "SELECT"
-					." t1.id AS id,"
-					." t2.name AS user_name,"
-					." t4.paper_name AS paper_name,"
-					." t1.score AS score,"
-					." DATE_FORMAT(t1.test_date,'%Y-%m-%d %H:%i:%s') AS test_date,"
-					." t2.org_name AS org_name,"
-					." t3.name AS dept_name"
-				." FROM t_score AS t1"
-				." LEFT JOIN m_user AS t2 ON t1.user_id = t2.id"
-				." LEFT JOIN m_dept AS t3 ON t2.dept_id = t3.id"
-				." LEFT JOIN m_test_paper AS t4 ON t1.test_paper_id = t4.id"
-				." WHERE t2.identity_card = '%s'";
+		$sql = "SELECT".
+					" t1.id AS id,".
+					" t2.name AS user_name,".
+					" t4.paper_name AS paper_name,".
+					" t1.score AS score,".
+					" DATE_FORMAT(t1.test_date,'%Y-%m-%d %H:%i:%s') AS test_date,".
+					" t2.org_name AS org_name,".
+					" t3.name AS dept_name".
+				" FROM t_score AS t1".
+				" LEFT JOIN m_user AS t2 ON t1.user_id = t2.id".
+				" LEFT JOIN m_dept AS t3 ON t2.dept_id = t3.id".
+				" LEFT JOIN m_test_paper AS t4 ON t1.test_paper_id = t4.id".
+				" WHERE t2.identity_card = '%s'";
 		$result = exec_sql($sql, $identity_card);
 		$row = mysql_fetch_array($result);
 		
@@ -47,18 +47,35 @@ if(!$is_get_score) {
 </head>
 <body>
 	<?php show_error_info(); ?>
-	<div class="alert alert-danger" role="alert"><a href="#" class="alert-link">...</a></div>
 	<div class="center-panel score-panel">
 		<h2 class="text-center score-title">测试成绩</h2>
 		<!-- 显示成绩 -->
-		<dl class="dl-horizontal">
-			<dt>姓名</dt><dd><?php echo $row['user_name'] ?></dd>
-			<dt>试卷类型</dt><dd><?php echo $row['paper_name'] ?></dd>
-			<dt>测试得分</dt><dd><?php echo $row['score'] ?></dd>
-			<dt>测试时间</dt><dd><?php echo $row['test_date'] ?></dd>
-			<dt>单位名称</dt><dd><?php echo $row['org_name'] ?></dd>
-			<dt>部门名称</dt><dd><?php echo $row['dept_name'] ?></dd>
-		</dl>
+		<table class="table table-hover table-bordered">
+			<tr>
+				<th class="info" style="width: 100px">姓名</th>
+				<td class="text-center"><?php echo isset($row['user_name']) ? $row['user_name'] : "未知"; ?></td>
+			</tr>
+			<tr>
+				<th class="info" style="width: 100px">试卷类型</th>
+				<td class="text-center"><?php echo isset($row['paper_name']) ? $row['paper_name'] : "未知"; ?></td>
+			</tr>
+			<tr>
+				<th class="info" style="width: 100px">测试得分</th>
+				<td class="text-center"><?php echo isset($row['score']) ? $row['score'] : "无成绩"; ?></td>
+			</tr>
+			<tr>
+				<th class="info" style="width: 100px">测试时间</th>
+				<td class="text-center"><?php echo isset($row['test_date']) ? $row['test_date'] : "无"; ?></td>
+			</tr>
+			<tr>
+				<th class="info" style="width: 100px">单位名称</th>
+				<td class="text-center"><?php echo isset($row['org_name']) ? $row['org_name'] : "未知"; ?></td>
+			</tr>
+			<tr>
+				<th class="info" style="width: 100px">部门名称</th>
+				<td class="text-center"><?php echo isset($row['dept_name']) ? $row['dept_name'] : "未知"; ?></td>
+			</tr>
+		</table>
 	</div>
     <?php require 'common/javascript.inc.php'; ?>
 </body>

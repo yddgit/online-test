@@ -24,7 +24,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	return;
 }
 
-//TODO 随机查询一份试卷并显示
+$sql = "SELECT t1.id, t1.paper_name FROM m_test_paper AS t1 ORDER BY rand() LIMIT %d";
+$test_paper = exec_sql($sql, 1);
+$test_paper_row = mysql_fetch_array($test_paper);
+// 试卷ID
+$paper_id = $test_paper_row['id'];
+// 试卷名
+$paper_name = $test_paper_row['paper_name'];
+
+$sql = "SELECT".
+			" t1.question_id,".
+			" t1.question_order,".
+			" t1.question_score,".
+			" t2.question,".
+			" t2.desc,".
+			" t2.correct_option_id,".
+			" t2.explain".
+		" FROM m_test_question AS t1".
+		" LEFT JOIN m_question AS t2 ON t1.question_id = t2.id".
+		" WHERE t1.test_paper_id = %d AND t2.valid_flag = 1".
+		" ORDER BY t1.question_order";
+// 问题列表
+$questions = exec_sql($sql, $paper_id);
+
+$sql = "SELECT".
+			" t1.id, t1.option, t1.`order`,".
+			" t1.question_id".
+		" FROM m_option AS t1".
+		" WHERE EXISTS (".
+			" SELECT 1 FROM m_test_question AS t2".
+			" WHERE t2.test_paper_id = %d AND t2.question_id = t1.question_id".
+		" )".
+		" ORDER BY t1.question_id, t1.`order`";
+$options_row = exec_sql($sql, $paper_id);
+// 选项列表
+$options = array();
+while ( $option = mysql_fetch_array( $options_row ) ) {
+	$key = $option['question_id'];
+	$value = isset($options[$key]) ? $options[$key] : array();
+	$value[$option['id']] = $option;
+	$options[$key] = $value;
+}
 
 ?>
 <!DOCTYPE html>
@@ -39,49 +79,77 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 	<?php show_error_info(); ?>
 	<div class="center-panel test-form ">
-	<form action="logic/login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="login-form">
-		<div class="form-group">
-			<h2 class="text-center test-title">试卷（类型：A卷）<?php echo $identity_card; ?></h2>
-		</div>
-		<div class="form-group">
-			<label for="org_name" class="col-sm-2 control-label">单位名称</label>
-			<div class="col-sm-10">
-				<input type="text" class="form-control validate[required]" id="org_name" name="org_name" placeholder="单位名称">
+		<form action="login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="testForm">
+			<div class="form-group">
+				<h2 class="text-center test-title">正在考试（试卷类型：<?php echo $paper_name; ?>）</h2>
+				<input type="hidden" name="paper_id" value="<?php echo $paper_id; ?>" />
+				<input type="hidden" name="identity_card" value="<?php echo $identity_card; ?>" />
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="dept_id" class="col-sm-2 control-label">所在部门</label>
-			<div class="col-sm-10">
-				<select class="form-control validate[required]" id="dept_id" name="dept_id">
-				<option></option>
-				<?php
-				$result = exec_sql( "SELECT t1.id, t1.`name` FROM m_dept AS t1 WHERE t1.valid_flag = '%s'", "1" );
-				while ( $row = mysql_fetch_array ( $result ) ) {
-					echo '<option value="' . $row ['id'] . '">' . $row ['name'] . "</option>\n";
-				}
-				?>
-				</select>
+			<div class="form-group">
+				<ol class="decimal-list">
+					<?php
+					while ( $question = mysql_fetch_array( $questions ) ) {
+						$question_id = $question['question_id'];
+						$question_order = $question['question_order'];
+						$question_score = $question['question_score'];
+						$question_title = $question['question'];
+						$question_desc = $question['desc'];
+						$question_correct_option_id = $question['correct_option_id'];
+						$question_explain = $question['explain'];
+						if(count(explode(",", $question_correct_option_id)) > 1) {
+							$question_type = "checkbox";
+						} else {
+							$question_type = "radio";
+						}
+					?>
+					<li>
+						<input type="hidden" name="paper_id" value="<?php echo $paper_id; ?>" />
+						<pre class="question-title"><?php echo $question_title ?>【<?php echo $question_score ?>分】
+<?php echo $question_desc ?></pre>
+						<div class="question-options">
+							<ol class="upper-alpha-list">
+								<?php
+								$question_options = $options[$question_id];
+								foreach ($question_options as $question_option) {
+								?>
+								<li>
+									<label class="<?php echo $question_type; ?> option-<?php echo $question_type; ?>">
+										<input type="<?php echo $question_type; ?>" name="<?php echo $question_option['question_id'] ?>" value="<?php echo $question_option['id'] ?>" class="validate[required]" />
+										<span><?php echo $question_option['option'] ?></span>
+									</label>
+								</li>
+								<?php } ?>
+							</ol>
+						</div>
+					</li>
+					<?php } ?>
+				</ol>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="user_name" class="col-sm-2 control-label">姓名</label>
-			<div class="col-sm-10">
-				<input type="text" class="form-control validate[required]" id="user_name" name="user_name" placeholder="姓名">
+			<div class="form-group">
+				<div class="text-center">
+					<button type="button" onclick="showConfirm()" class="btn btn-warning">确认提交</button>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="identity_card" class="col-sm-2 control-label">身份证号</label>
-			<div class="col-sm-10">
-				<input type="text" class="form-control validate[required]" id="identity_card" name="identity_card" placeholder="身份证号">
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="text-center">
-				<button type="submit" class="btn btn-warning">确认提交</button>
-			</div>
-		</div>
-	</form>
+		</form>
 	</div>
+	<div class="modal fade" id="testFormConfirm" tabindex="-1" role="dialog" aria-labelledby="formConfirm">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="formConfirm">确认</h4>
+				</div>
+				<div class="modal-body">您确认要提交答卷吗？</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" onclick="commitAnswer()">确认</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<a id="toTop" href="#">回到顶部</a>
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>

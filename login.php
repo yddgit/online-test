@@ -1,6 +1,6 @@
 <?php
 
-require '../common/open_conn.inc.php';
+require 'common/open_conn.inc.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$org_name = check_input($_POST["org_name"]);
@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if(is_test($identity_card)) {
 		$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
 		$data['identity_card'] = $identity_card;
-		load_view("../score.php", "post", true, $data);
+		load_view("score.php", "post", true, $data);
 		return;
 	} else {
 		if(!is_exist($identity_card)) {
@@ -20,13 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			exec_sql($sql, array($user_name, $identity_card, $org_name, $dept_id));
 		}
 		$data = array('identity_card' => $identity_card);
-		load_view("../test.php", "post", false, $data);
+		load_view("test.php", "post", false, $data);
 		return;
 	}
 } else {
 	$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
-	load_view("../error.php", "post", true, $data);
+	load_view("error.php", "post", true, $data);
 	return;
 }
 
-require '../common/close_conn.inc.php';
+require 'common/close_conn.inc.php';

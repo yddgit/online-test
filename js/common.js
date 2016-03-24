@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    //TODO something
+	$("form").validationEngine('attach');
 });
 
 function formCheck(form) {
@@ -10,4 +10,20 @@ function formCheck(form) {
 	} else {
 		return true;
 	}
+}
+
+function showConfirm() {
+	if(!formCheck($("#testForm"))) {
+		return false;
+	}
+	$('#testFormConfirm').modal({backdrop:'static'});
+}
+
+function commitAnswer() {
+	if(!formCheck($("#testForm"))) {
+		$('#testFormConfirm').modal('hide');
+		return;
+	}
+	$("#testForm").submit();
+	$('#testFormConfirm').modal('hide');
 }
