@@ -83,6 +83,7 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 			<div class="form-group">
 				<ol class="decimal-list">
 					<?php
+					$question_ids = "";
 					while ( $question = mysql_fetch_array( $questions ) ) {
 						$question_id = $question['question_id'];
 						$question_order = $question['question_order'];
@@ -96,9 +97,9 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 						} else {
 							$question_type = "radio";
 						}
+						$question_ids = $question_ids . "," . $question_id;
 					?>
 					<li>
-						<input type="hidden" name="paper_id" value="<?php echo $paper_id; ?>" />
 						<pre class="question-title"><?php echo $question_title ?>【<?php echo $question_score ?>分】
 <?php echo $question_desc ?></pre>
 						<div class="question-options">
@@ -119,6 +120,7 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 					</li>
 					<?php } ?>
 				</ol>
+				<input type="hidden" name="question_ids" value="<?php echo $question_ids; ?>" />
 			</div>
 			<div class="form-group">
 				<div class="text-center">
