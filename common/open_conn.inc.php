@@ -38,7 +38,7 @@ function prepare( $query, $args ) {
 		return;
 	}
 	if ( strpos( $query, '%' ) === false ) {
-		load_view("error.php", "post", true, $data);
+		load_view("view_error.php", "post", true, $data);
 	}
 
 	$escape_by_ref = function ( &$string ) {

@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 if(!$is_get_score) {
 	$data = get_error_info(MessageType::DANGER, "暂未没有找到成绩记录。", "index.php", "返回登录页面");
-	load_view("error.php", "post", true, $data);
+	load_view("view_error.php", "post", true, $data);
 	return;
 }
 
