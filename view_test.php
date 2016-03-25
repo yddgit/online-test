@@ -7,7 +7,7 @@ if(!has_auth("POST")) { return; }
 $identity_card = check_input($_POST["identity_card"]);
 
 if(is_test($identity_card)) {
-	$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
+	$data = get_error_info(MessageType::INFO, "您已经参加过考试，可直接查看分数。");
 	$data['identity_card'] = $identity_card;
 	load_view("view_score.php", "post", true, $data);
 	return;
@@ -68,13 +68,13 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>正在测试</title>
+<title>正在考试</title>
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
 	<?php show_error_info(); ?>
 	<div class="center-panel test-form ">
-		<form action="service_login.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="testForm">
+		<form action="service_test.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="testForm">
 			<div class="form-group">
 				<h2 class="text-center test-title">正在考试（试卷类型：<?php echo $paper_name; ?>）</h2>
 				<input type="hidden" name="paper_id" value="<?php echo $paper_id; ?>" />
@@ -83,7 +83,6 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 			<div class="form-group">
 				<ol class="decimal-list">
 					<?php
-					$question_ids = "";
 					while ( $question = mysql_fetch_array( $questions ) ) {
 						$question_id = $question['question_id'];
 						$question_order = $question['question_order'];
@@ -97,7 +96,6 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 						} else {
 							$question_type = "radio";
 						}
-						$question_ids = $question_ids . "," . $question_id;
 					?>
 					<li>
 						<pre class="question-title"><?php echo $question_title ?>【<?php echo $question_score ?>分】
@@ -110,7 +108,8 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 								?>
 								<li>
 									<label class="<?php echo $question_type; ?> option-<?php echo $question_type; ?>">
-										<input type="<?php echo $question_type; ?>" name="<?php echo $question_option['question_id'] ?>" value="<?php echo $question_option['id'] ?>" class="validate[required]" />
+										<input type="<?php echo $question_type; ?>" name="<?php echo $question_option['question_id'] . ($question_type === "checkbox" ? "[]" : ""); ?>"
+											value="<?php echo $question_option['id'] ?>" class="validate[required]" />
 										<span><?php echo $question_option['option'] ?></span>
 									</label>
 								</li>
@@ -120,31 +119,30 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 					</li>
 					<?php } ?>
 				</ol>
-				<input type="hidden" name="question_ids" value="<?php echo $question_ids; ?>" />
 			</div>
 			<div class="form-group">
 				<div class="text-center">
 					<button type="button" onclick="showConfirm()" class="btn btn-warning">确认提交</button>
 				</div>
 			</div>
-		</form>
-	</div>
-	<div class="modal fade" id="testFormConfirm" tabindex="-1" role="dialog" aria-labelledby="formConfirm">
-		<div class="modal-dialog modal-md" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title" id="formConfirm">确认</h4>
-				</div>
-				<div class="modal-body">您确认要提交答卷吗？</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" onclick="commitAnswer()">确认</button>
+			<div class="modal fade" id="testFormConfirm" tabindex="-1" role="dialog" aria-labelledby="formConfirm">
+				<div class="modal-dialog modal-md" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="formConfirm">确认</h4>
+						</div>
+						<div class="modal-body">您确认要提交答卷吗？</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button type="submit" class="btn btn-primary">确认</button>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</form>
 	</div>
 	<a id="toTop" href="#">回到顶部</a>
     <?php require 'common/javascript.inc.php'; ?>

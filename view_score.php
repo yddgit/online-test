@@ -13,7 +13,7 @@ if($identity_card) {
 				" t2.name AS user_name,".
 				" t4.paper_name AS paper_name,".
 				" t1.score AS score,".
-				" DATE_FORMAT(t1.test_date,'%Y-%m-%d %H:%i:%s') AS test_date,".
+				" t1.test_date AS test_date,".
 				" t2.org_name AS org_name,".
 				" t3.name AS dept_name".
 			" FROM t_score AS t1".
@@ -42,13 +42,13 @@ if(!$is_get_score) {
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>测试成绩</title>
+<title>考试成绩</title>
 <?php require 'common/header.inc.php'; ?>
 </head>
 <body>
 	<?php show_error_info(); ?>
 	<div class="center-panel score-panel">
-		<h2 class="text-center score-title">测试成绩</h2>
+		<h2 class="text-center score-title">考试成绩</h2>
 		<!-- 显示成绩 -->
 		<table class="table table-hover table-bordered">
 			<tr>
@@ -60,12 +60,12 @@ if(!$is_get_score) {
 				<td class="text-center"><?php echo isset($row['paper_name']) ? $row['paper_name'] : "未知"; ?></td>
 			</tr>
 			<tr>
-				<th class="info" style="width: 100px">测试得分</th>
+				<th class="info" style="width: 100px">考试得分</th>
 				<td class="text-center"><?php echo isset($row['score']) ? $row['score'] : "无成绩"; ?></td>
 			</tr>
 			<tr>
-				<th class="info" style="width: 100px">测试时间</th>
-				<td class="text-center"><?php echo isset($row['test_date']) ? $row['test_date'] : "无"; ?></td>
+				<th class="info" style="width: 100px">考试时间</th>
+				<td class="text-center"><?php echo isset($row['test_date']) ? date("Y-m-d H:i:s", strtotime($row['test_date'])) : "无"; ?></td>
 			</tr>
 			<tr>
 				<th class="info" style="width: 100px">单位名称</th>

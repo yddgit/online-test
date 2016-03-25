@@ -177,7 +177,7 @@ CREATE TABLE `m_user` (
   `identity_card` varchar(255) NOT NULL DEFAULT '身份证号未指定' COMMENT '身份证号',
   `org_name` varchar(512) NOT NULL DEFAULT '单位名称未指定' COMMENT '单位名称',
   `dept_id` int(11) NOT NULL COMMENT '用户所属的部门ID',
-  `is_test` int(11) NOT NULL DEFAULT '0' COMMENT '是否已经测试：0未测试，1已测试',
+  `is_test` int(11) NOT NULL DEFAULT '0' COMMENT '是否已经考过试：0未考试，1已考试',
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQUE_IDENTITY_CARD` (`identity_card`),
   KEY `FK_USER_DEPT_ID` (`dept_id`),
@@ -197,7 +197,7 @@ CREATE TABLE `t_score` (
   `user_id` int(11) NOT NULL COMMENT '用户ID',
   `test_paper_id` int(11) NOT NULL COMMENT '试卷ID',
   `score` int(11) NOT NULL DEFAULT '0' COMMENT '用户得分',
-  `test_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '测试时间',
+  `test_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '考试时间',
   PRIMARY KEY (`id`),
   KEY `FK_SCORE_USER_ID` (`user_id`),
   KEY `FK_SCORE_TEST_PAPER_ID` (`test_paper_id`),
@@ -217,18 +217,13 @@ CREATE TABLE `t_user_answer` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '得分ID',
   `user_id` int(11) NOT NULL COMMENT '用户ID',
   `question_id` int(11) NOT NULL COMMENT '问题',
-  `user_option_id` int(11) NOT NULL COMMENT '用户选项',
-  `correct_option_id` int(11) NOT NULL COMMENT '问题答案',
-  `test_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '测试时间',
+  `user_option_id` varchar(255) NOT NULL COMMENT '用户选项',
+  `test_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '考试时间',
   PRIMARY KEY (`id`),
   KEY `FK_ANSWER_USER_ID` (`user_id`),
   KEY `FK_ANSWER_QUESTION_ID` (`question_id`),
-  KEY `FK_ANSWER_USER_OPTION_ID` (`user_option_id`),
-  KEY `FK_ANSWER_CORRECT_OPTION_ID` (`correct_option_id`),
-  CONSTRAINT `FK_ANSWER_CORRECT_OPTION_ID` FOREIGN KEY (`correct_option_id`) REFERENCES `m_option` (`id`),
   CONSTRAINT `FK_ANSWER_QUESTION_ID` FOREIGN KEY (`question_id`) REFERENCES `m_question` (`id`),
-  CONSTRAINT `FK_ANSWER_USER_ID` FOREIGN KEY (`user_id`) REFERENCES `m_user` (`id`),
-  CONSTRAINT `FK_ANSWER_USER_OPTION_ID` FOREIGN KEY (`user_option_id`) REFERENCES `m_option` (`id`)
+  CONSTRAINT `FK_ANSWER_USER_ID` FOREIGN KEY (`user_id`) REFERENCES `m_user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户答案表';
 
 -- ----------------------------

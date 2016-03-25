@@ -6,7 +6,7 @@
 	margin: 0 auto;
 }
 .form-title {
-	font-weight: 900;
+	font-weight: 700;
 }
 .login-form {
 	width: 500px;
@@ -14,7 +14,7 @@
 }
 .score-title {
 	color: #4054A2;
-	font-weight: 900;
+	font-weight: 700;
 	margin-bottom: 20px;
 }
 .score-panel {
@@ -23,7 +23,7 @@
 }
 .test-title {
 	color: #4054A2;
-	font-weight: 900;
+	font-weight: 700;
 }
 .test-form {
 	width: 800px;

@@ -1,5 +1,16 @@
 SELECT DATE_FORMAT(CURRENT_TIMESTAMP,'%Y-%m-%d %H:%i:%s');
 
+SELECT
+ t1.id,
+ t1.identity_card,
+ t1.`name`,
+ t1.dept_id,
+ t1.org_name,
+ t1.is_test
+FROM m_user AS t1
+WHERE t1.identity_card = '#identity_card'
+LIMIT 1;
+
 /*查看用户是否已答过题*/
 SELECT count(*) FROM m_user AS t1 WHERE t1.identity_card = '#identity_card' AND t1.is_test = 1;
 
@@ -46,8 +57,8 @@ ORDER BY t1.question_id, t1.`order`;
 
 /*用户作答提交之后，插入答卷结果及分数*/
 /*一题一记录，循环时加得总分*/
-INSERT INTO t_user_answer (user_id, question_id, user_option_id, correct_option_id, test_date)
-  VALUES ('#user_id', '#question_id', '#user_option_id', '#correct_option_id', CURRENT_TIMESTAMP);
+INSERT INTO t_user_answer (user_id, question_id, user_option_id, test_date)
+  VALUES ('#user_id', '#question_id', '#user_option_id', CURRENT_TIMESTAMP);
 
 /*根据总分计算级别*/
 /*'0-60'    '#score >= 0 && #score < 60'*/
@@ -57,7 +68,9 @@ INSERT INTO t_user_answer (user_id, question_id, user_option_id, correct_option_
 /*'90-100'  '#score >= 90 && #score <= 100'*/
 INSERT INTO t_score (user_id, test_paper_id, score, test_date) VALUES ('#user_id', '#test_paper_id', '#score', CURRENT_TIMESTAMP);
 
-/*按部门查询测试用户信息*/
+UPDATE m_user SET is_test = 1 WHERE id = '#id';
+
+/*按部门查询考试用户信息*/
 SELECT t1.user_id, t2.name, t2.identity_card, t2.org_name, t3.paper_name, t1.score, t1.test_date FROM t_score AS t1
 LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
 LEFT JOIN m_test_paper t3 ON t1.test_paper_id = t3.id

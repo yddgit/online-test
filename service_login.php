@@ -10,7 +10,7 @@ $user_name = check_input($_POST["user_name"]);
 $identity_card = check_input($_POST["identity_card"]);
 
 if(is_test($identity_card)) {
-	$data = get_error_info(MessageType::INFO, "您已经参加过测试，可直接查看分数。");
+	$data = get_error_info(MessageType::INFO, "您已经参加过考试，可直接查看分数。");
 	$data['identity_card'] = $identity_card;
 	load_view("view_score.php", "post", true, $data);
 	return;

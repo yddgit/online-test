@@ -37,8 +37,14 @@ function prepare( $query, $args ) {
 	if ( is_null( $query ) ) {
 		return;
 	}
-	if ( strpos( $query, '%' ) === false ) {
-		load_view("view_error.php", "post", true, $data);
+
+	if(count($args) === 0) {
+		if ( strpos( $query, '%' ) === false ) {
+			return $query;
+		} else {
+			$data = get_error_info(MessageType::DANGER, "数据查询语句错误(no args)。", "index.php", "点此跳转到登录页面");
+			load_view("view_error.php", "post", true, $data);
+		}
 	}
 
 	$escape_by_ref = function ( &$string ) {
@@ -99,7 +105,7 @@ class MessageType {
  * @param string $redirect_url_text
  * @return array
  */
-function get_error_info($msg_type, $msg_content, $redirect_url, $redirect_url_text) {
+function get_error_info($msg_type, $msg_content, $redirect_url = NULL, $redirect_url_text = NULL) {
 	$error_msg = array();
 	$error_msg['msg_type'] = $msg_type;
 	$error_msg['msg_content'] = base64_encode($msg_content);
@@ -143,9 +149,9 @@ function load_view($url, $method, $is_error, $data = array()) {
  */
 function show_error_info() {
 
-	if ($_SERVER["REQUEST_METHOD"] == "GET") {
+	if ($_SERVER["REQUEST_METHOD"] === "GET") {
 		$data = $_GET;
-	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	} else if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		$data = $_POST;
 	}
 
@@ -175,7 +181,28 @@ function show_error_info() {
 }
 
 /**
- * 用户是否参加过测试
+ * 使用身份证号查询用户信息
+ * @param string $identity_card
+ * @return user_info
+ */
+function find_user_by_identity_card($identity_card) {
+	$sql = "SELECT".
+				" t1.id,".
+				" t1.identity_card,".
+				" t1.`name`,".
+				" t1.dept_id,".
+				" t1.org_name,".
+				" t1.is_test".
+			" FROM m_user AS t1".
+			" WHERE t1.identity_card = '%s'".
+			" LIMIT 1";
+	$result = exec_sql($sql, $identity_card);
+	$user_info = mysql_fetch_array ( $result );
+	return $user_info;
+}
+
+/**
+ * 用户是否参加过考试
  * @param string $identity_card
  * @return boolean
  */
@@ -202,7 +229,7 @@ function is_exist($identity_card) {
  * HTTP请求的检查
  */
 function has_auth($method) {
-	if($_SERVER["REQUEST_METHOD"] != $method) {
+	if($_SERVER["REQUEST_METHOD"] !== $method) {
 		$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
 		load_view("view_error.php", "post", true, $data);
 		return false;

@@ -18,12 +18,3 @@ function showConfirm() {
 	}
 	$('#testFormConfirm').modal({backdrop:'static'});
 }
-
-function commitAnswer() {
-	if(!formCheck($("#testForm"))) {
-		$('#testFormConfirm').modal('hide');
-		return;
-	}
-	$("#testForm").submit();
-	$('#testFormConfirm').modal('hide');
-}
