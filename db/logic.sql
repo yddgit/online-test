@@ -72,13 +72,38 @@ INSERT INTO t_score (user_id, test_paper_id, score, test_date) VALUES ('#user_id
 
 UPDATE m_user SET is_test = 1 WHERE id = '#id';
 
+SELECT
+ t.id AS dept_id,
+ t.`name` AS dept_name,
+ IFNULL(t3.user_num, 0) AS user_num
+ FROM m_dept AS t
+ LEFT JOIN (
+  SELECT
+   t2.dept_id,
+   count(t1.user_id) AS user_num
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  GROUP BY t2.dept_id
+ ) AS t3 ON t.id = t3.dept_id;
+
 /*按部门查询考试用户信息*/
-SELECT t1.user_id, t2.name, t2.identity_card, t2.org_name, t3.paper_name, t1.score, t1.test_date FROM t_score AS t1
-LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
-LEFT JOIN m_test_paper t3 ON t1.test_paper_id = t3.id
-WHERE t2.dept_id = '#dept_id';
+SELECT
+ t1.user_id,
+ t2.name,
+ t2.identity_card,
+ t2.org_name,
+ t4.`name` AS dept_name,
+ t3.paper_name,
+ t1.score,
+ t1.test_date
+ FROM t_score AS t1
+ LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+ LEFT JOIN m_test_paper t3 ON t1.test_paper_id = t3.id
+ LEFT JOIN m_dept AS t4 ON t2.dept_id = t4.id
+ WHERE t2.dept_id = '1';
 
 /*按部门统计不同分数级别的用户数*/
+SELECT t.`level`, count(user_id) AS user_num, concat(round(100 * count(user_id)/t.total_user, 2), '%') AS user_percent, round(avg(t.score),2) AS avg_score FROM (
 SELECT
 (
   CASE WHEN t1.score >= 0  AND t1.score < 60   THEN '0-60'
@@ -87,13 +112,58 @@ SELECT
        WHEN t1.score >= 80 AND t1.score < 90   THEN '80-90'
        WHEN t1.score >= 90 AND t1.score <= 100 THEN '90-100'
   ELSE '其他' END
-) AS level,
-count(*) AS user_num FROM t_score AS t1
-LEFT JOIN m_user AS t2 ON t1.user_id = t2.id WHERE t2.dept_id = '#dept_id' GROUP BY (
-  CASE WHEN t1.score >= 0  AND t1.score < 60   THEN '0-60'
-       WHEN t1.score >= 60 AND t1.score < 70   THEN '60-70'
-       WHEN t1.score >= 70 AND t1.score < 80   THEN '70-80'
-       WHEN t1.score >= 80 AND t1.score < 90   THEN '80-90'
-       WHEN t1.score >= 90 AND t1.score <= 100 THEN '90-100'
-  ELSE '其他' END
-);
+) AS level, t1.user_id, t1.score, (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user
+FROM t_score AS t1
+LEFT JOIN m_user AS t2 ON t1.user_id = t2.id WHERE t2.dept_id = '1'
+) AS t GROUP BY t.`level`;
+
+SELECT
+ t.`level`,
+ t.user_num,
+ concat(ifnull(convert(round(100 * t.user_num/t.total_user, 2), decimal), 0), '%') AS user_percent,
+ t.avg_score FROM (
+ SELECT
+  '0-60' AS level,
+  count(*) AS user_num,
+  (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user,
+  ifnull(round(avg(t1.score), 2), 0) AS avg_score
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  WHERE t2.dept_id = '1' AND t1.score >= 0  AND t1.score < 60
+ UNION
+ SELECT
+  '60-70' AS level,
+  count(*) AS user_num,
+  (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user,
+  ifnull(round(avg(t1.score), 2), 0) AS avg_score
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  WHERE t2.dept_id = '1' AND t1.score >= 60 AND t1.score < 70
+ UNION
+ SELECT
+  '70-80' AS level,
+  count(*) AS user_num,
+  (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user,
+  ifnull(round(avg(t1.score), 2), 0) AS avg_score
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  WHERE t2.dept_id = '1' AND t1.score >= 70 AND t1.score < 80
+ UNION
+ SELECT
+  '80-90' AS level,
+  count(*) AS user_num,
+  (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user,
+  ifnull(round(avg(t1.score), 2), 0) AS avg_score
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  WHERE t2.dept_id = '1' AND t1.score >= 80 AND t1.score < 90
+ UNION
+ SELECT
+  '90-100' AS level,
+  count(*) AS user_num,
+  (SELECT count(*) FROM t_score LEFT JOIN m_user ON t_score.user_id = m_user.id WHERE m_user.dept_id = '1') AS total_user,
+  ifnull(round(avg(t1.score), 2), 0) AS avg_score
+  FROM t_score AS t1
+  LEFT JOIN m_user AS t2 ON t1.user_id = t2.id
+  WHERE t2.dept_id = '1' AND t1.score >= 90 AND t1.score <= 100
+ ) AS t;

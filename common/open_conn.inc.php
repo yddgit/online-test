@@ -239,3 +239,60 @@ function has_auth($method) {
 		return true;
 	}
 }
+
+/**
+ * 导出数据到Excel
+ * @param PHPExcel $excel_obj
+ * @param index $sheet_index
+ * @param array $head
+ * @param array $head_text
+ * @param col_width $col_width
+ * @param col_date $col_date
+ * @param data $rows
+ * @param sheet_name $sheet_name
+ */
+function export_excel($excel_obj, $sheet_index, $head, $head_text, $col_width, $col_date, $rows, $sheet_name) {
+	if(mysql_num_rows($rows) > 0) {
+		// 创建工作表
+		if($excel_obj->getSheetCount() > $sheet_index) {
+			$worksheet = $excel_obj->getSheet($sheet_index);
+		} else {
+			$worksheet = $excel_obj->createSheet($sheet_index);
+		}
+
+		// 添加数据
+		
+		// 数据
+		$worksheet->setCellValueByColumnAndRow(0, 1, "序号");
+		// 表头文字加粗
+		$worksheet->getStyleByColumnAndRow(0, 1)->getFont()->setBold(true);
+		// 列宽
+		$worksheet->getColumnDimensionByColumn(0)->setWidth(10);
+		foreach ($head_text as $i => $value) {
+			// 数据
+			$worksheet->setCellValueByColumnAndRow($i + 1, 1, $value);
+			// 表头文字加粗
+			$worksheet->getStyleByColumnAndRow($i + 1, 1)->getFont()->setBold(true);
+			// 列宽
+			$worksheet->getColumnDimensionByColumn($i + 1)->setWidth($col_width[$i]);
+		}
+
+		$row_num = 1;
+		while($row = mysql_fetch_array( $rows )) {
+			$row_num++;
+			$worksheet->setCellValueByColumnAndRow(0, $row_num, $row_num - 1);
+			foreach ($head as $i => $value) {
+				$cell_value = $row["{$value}"];
+				if(in_array($value, $col_date)) {
+					$cell_value = date("Y-m-d H:i:s", strtotime($cell_value));
+				}
+				// 数据
+				$worksheet->setCellValueByColumnAndRow($i + 1, $row_num, $cell_value);
+				// 设置数据类型为文本
+				$worksheet->getCellByColumnAndRow($i + 1, $row_num)->setDataType(PHPExcel_Cell_DataType::TYPE_STRING);
+			}
+		}
+		// 设置sheet名
+		$worksheet->setTitle($sheet_name);
+	}
+}

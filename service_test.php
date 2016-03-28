@@ -86,6 +86,6 @@ if($result1 && $result2 && $result3) {
 }
 
 $data['identity_card'] = $identity_card;
-load_view("view_score.php", "post", true, $data);
+load_view("view_score.php", "post", false, $data);
 
 require 'common/close_conn.inc.php';

@@ -6,5 +6,6 @@ RewriteEngine on
 RewriteCond % !^$
 RewriteRule common/(.*).(php)$ - [F]
 RewriteRule db/(.*).(php)$ - [F]
+RewriteRule phpexcel/(.*).(php)$ - [F]
 RewriteRule README.(.*)$ - [F]
 RewriteRule .git/(.*)$ - [F]
