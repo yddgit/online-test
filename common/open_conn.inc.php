@@ -181,7 +181,7 @@ function show_error_info() {
 }
 
 /**
- * 使用身份证号查询用户信息
+ * 使用身份证号查询用户信息: id, identity_card, name, dept_id, dept_name, org_name, is_test
  * @param string $identity_card
  * @return user_info
  */
@@ -191,9 +191,11 @@ function find_user_by_identity_card($identity_card) {
 				" t1.identity_card,".
 				" t1.`name`,".
 				" t1.dept_id,".
+				" t2.`name` AS dept_name,".
 				" t1.org_name,".
 				" t1.is_test".
 			" FROM m_user AS t1".
+			" LEFT JOIN m_dept t2 ON t1.dept_id = t2.id".
 			" WHERE t1.identity_card = '%s'".
 			" LIMIT 1";
 	$result = exec_sql($sql, $identity_card);

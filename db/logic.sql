@@ -5,9 +5,11 @@ SELECT
  t1.identity_card,
  t1.`name`,
  t1.dept_id,
+ t2.`name` AS dept_name,
  t1.org_name,
  t1.is_test
 FROM m_user AS t1
+LEFT JOIN m_dept t2 ON t1.dept_id = t2.id
 WHERE t1.identity_card = '#identity_card'
 LIMIT 1;
 

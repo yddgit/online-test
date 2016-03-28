@@ -19,6 +19,9 @@ if(is_test($identity_card)) {
 	}
 }
 
+//用户信息
+$user_info = find_user_by_identity_card($identity_card);
+
 $sql = "SELECT t1.id, t1.paper_name FROM m_test_paper AS t1 ORDER BY rand() LIMIT %d";
 $test_paper = exec_sql($sql, 1);
 $test_paper_row = mysql_fetch_array($test_paper);
@@ -73,6 +76,10 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 </head>
 <body>
 	<?php show_error_info(); ?>
+	<div class="alert alert-info" role="alert">
+		<?php echo $user_info['org_name']; ?>（<?php echo $user_info['dept_name']; ?>）:
+		<strong><?php echo $user_info['name']; ?></strong>
+	</div>
 	<div class="center-panel test-form ">
 		<form action="service_test.php" method="post" onsubmit="return formCheck(this);" class="form-horizontal" id="testForm">
 			<div class="form-group">
