@@ -31,7 +31,7 @@ $result = exec_sql($sql, array());
 	<div class="center-panel search-panel">
 	<h2 class="text-center search-title">各部门考试人数统计</h2>
 	<div class="text-right export-btn">
-		<a class="btn btn-primary btn-sm" href="service_export.php" role="button">导出</a>
+		<a class="btn btn-primary btn-sm" href="export.php" role="button">导出</a>
 	</div>
 	<table class="table table-hover table-bordered">
 		<thead>

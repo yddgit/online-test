@@ -10,7 +10,7 @@ $objPHPExcel = export_dept_user_num();
 
 // 将创建好的excel文件返回给浏览器
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment;filename="各部门考试情况统计.xls"');
+header('Content-Disposition: attachment;filename="' . urlencode("各部门考试情况统计") . '.xls"');
 header('Cache-Control: max-age=0');
 // IE9兼容设置项
 header('Cache-Control: max-age=1');
