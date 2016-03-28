@@ -37,6 +37,9 @@
 .search-panel {
 	width: 800px;
 }
+.dept-panel {
+	width: 1000px;
+}
 .dl-horizontal dt {
 	width: 80px;
 	color: #657FE4;

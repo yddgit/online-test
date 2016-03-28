@@ -204,6 +204,23 @@ function find_user_by_identity_card($identity_card) {
 }
 
 /**
+ * 根据ID查询部门信息: dept_id, dept_name
+ * @param dept_id $dept_id
+ * @return dept_info
+ */
+function find_dept_by_id($dept_id) {
+	$sql = "SELECT".
+			" t1.id AS dept_id,".
+			" t1.`name` AS dept_name".
+			" FROM m_dept AS t1".
+			" WHERE t1.id = '%s'".
+			" LIMIT 1";
+	$result = exec_sql($sql, $dept_id);
+	$dept_info = mysql_fetch_array ( $result );
+	return $dept_info;
+}
+
+/**
  * 用户是否参加过考试
  * @param string $identity_card
  * @return boolean
