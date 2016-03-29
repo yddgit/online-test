@@ -37,8 +37,14 @@ function prepare( $query, $args ) {
 	if ( is_null( $query ) ) {
 		return;
 	}
-	if ( strpos( $query, '%' ) === false ) {
-		load_view("../error.php", "post", true, $data);
+
+	if(count($args) === 0) {
+		if ( strpos( $query, '%' ) === false ) {
+			return $query;
+		} else {
+			$data = get_error_info(MessageType::DANGER, "数据查询语句错误(no args)。", "index.php", "点此跳转到登录页面");
+			load_view("view_error.php", "post", true, $data);
+		}
 	}
 
 	$escape_by_ref = function ( &$string ) {
@@ -81,9 +87,13 @@ function check_input($data) {
  * @author yang
  */
 class MessageType {
+	/** 成功信息 */
 	const SUCCESS = "success";
+	/** 提示信息 */
 	const INFO = "info";
+	/** 警告信息 */
 	const WARNING = "warning";
+	/** 错误信息 */
 	const DANGER = "danger";
 }
 
@@ -95,7 +105,7 @@ class MessageType {
  * @param string $redirect_url_text
  * @return array
  */
-function get_error_info($msg_type, $msg_content, $redirect_url, $redirect_url_text) {
+function get_error_info($msg_type, $msg_content, $redirect_url = NULL, $redirect_url_text = NULL) {
 	$error_msg = array();
 	$error_msg['msg_type'] = $msg_type;
 	$error_msg['msg_content'] = base64_encode($msg_content);
@@ -139,9 +149,9 @@ function load_view($url, $method, $is_error, $data = array()) {
  */
 function show_error_info() {
 
-	if ($_SERVER["REQUEST_METHOD"] == "GET") {
+	if ($_SERVER["REQUEST_METHOD"] === "GET") {
 		$data = $_GET;
-	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	} else if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		$data = $_POST;
 	}
 
@@ -171,7 +181,47 @@ function show_error_info() {
 }
 
 /**
- * 用户是否参加过测试
+ * 使用身份证号查询用户信息: id, identity_card, name, dept_id, dept_name, org_name, is_test
+ * @param string $identity_card
+ * @return user_info
+ */
+function find_user_by_identity_card($identity_card) {
+	$sql = "SELECT".
+				" t1.id,".
+				" t1.identity_card,".
+				" t1.`name`,".
+				" t1.dept_id,".
+				" t2.`name` AS dept_name,".
+				" t1.org_name,".
+				" t1.is_test".
+			" FROM m_user AS t1".
+			" LEFT JOIN m_dept t2 ON t1.dept_id = t2.id".
+			" WHERE t1.identity_card = '%s'".
+			" LIMIT 1";
+	$result = exec_sql($sql, $identity_card);
+	$user_info = mysql_fetch_array ( $result );
+	return $user_info;
+}
+
+/**
+ * 根据ID查询部门信息: dept_id, dept_name
+ * @param dept_id $dept_id
+ * @return dept_info
+ */
+function find_dept_by_id($dept_id) {
+	$sql = "SELECT".
+			" t1.id AS dept_id,".
+			" t1.`name` AS dept_name".
+			" FROM m_dept AS t1".
+			" WHERE t1.id = '%s'".
+			" LIMIT 1";
+	$result = exec_sql($sql, $dept_id);
+	$dept_info = mysql_fetch_array ( $result );
+	return $dept_info;
+}
+
+/**
+ * 用户是否参加过考试
  * @param string $identity_card
  * @return boolean
  */
@@ -192,4 +242,74 @@ function is_exist($identity_card) {
 	$result = exec_sql($sql, $identity_card);
 	$count = mysql_fetch_array ( $result )['count'];
 	return $count > 0 ? true : false;
+}
+
+/**
+ * HTTP请求的检查
+ */
+function has_auth($method) {
+	if($_SERVER["REQUEST_METHOD"] !== $method) {
+		$data = get_error_info(MessageType::DANGER, "没有操作权限。", "index.php", "请重新登录");
+		load_view("view_error.php", "post", true, $data);
+		return false;
+	} else {
+		return true;
+	}
+}
+
+/**
+ * 导出数据到Excel
+ * @param PHPExcel $excel_obj
+ * @param index $sheet_index
+ * @param array $head
+ * @param array $head_text
+ * @param col_width $col_width
+ * @param col_date $col_date
+ * @param data $rows
+ * @param sheet_name $sheet_name
+ */
+function export_excel($excel_obj, $sheet_index, $head, $head_text, $col_width, $col_date, $rows, $sheet_name) {
+	if(mysql_num_rows($rows) > 0) {
+		// 创建工作表
+		if($excel_obj->getSheetCount() > $sheet_index) {
+			$worksheet = $excel_obj->getSheet($sheet_index);
+		} else {
+			$worksheet = $excel_obj->createSheet($sheet_index);
+		}
+
+		// 添加数据
+		
+		// 数据
+		$worksheet->setCellValueByColumnAndRow(0, 1, "序号");
+		// 表头文字加粗
+		$worksheet->getStyleByColumnAndRow(0, 1)->getFont()->setBold(true);
+		// 列宽
+		$worksheet->getColumnDimensionByColumn(0)->setWidth(10);
+		foreach ($head_text as $i => $value) {
+			// 数据
+			$worksheet->setCellValueByColumnAndRow($i + 1, 1, $value);
+			// 表头文字加粗
+			$worksheet->getStyleByColumnAndRow($i + 1, 1)->getFont()->setBold(true);
+			// 列宽
+			$worksheet->getColumnDimensionByColumn($i + 1)->setWidth($col_width[$i]);
+		}
+
+		$row_num = 1;
+		while($row = mysql_fetch_array( $rows )) {
+			$row_num++;
+			$worksheet->setCellValueByColumnAndRow(0, $row_num, $row_num - 1);
+			foreach ($head as $i => $value) {
+				$cell_value = $row["{$value}"];
+				if(in_array($value, $col_date)) {
+					$cell_value = date("Y-m-d H:i:s", strtotime($cell_value));
+				}
+				// 数据
+				$worksheet->setCellValueByColumnAndRow($i + 1, $row_num, $cell_value);
+				// 设置数据类型为文本
+				$worksheet->getCellByColumnAndRow($i + 1, $row_num)->setDataType(PHPExcel_Cell_DataType::TYPE_STRING);
+			}
+		}
+		// 设置sheet名
+		$worksheet->setTitle($sheet_name);
+	}
 }

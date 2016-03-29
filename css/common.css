@@ -6,7 +6,7 @@
 	margin: 0 auto;
 }
 .form-title {
-	font-weight: 900;
+	font-weight: 700;
 }
 .login-form {
 	width: 500px;
@@ -14,19 +14,31 @@
 }
 .score-title {
 	color: #4054A2;
-	font-weight: 900;
+	font-weight: 700;
 	margin-bottom: 20px;
 }
 .score-panel {
-	width: 300px;
+	width: 500px;
 	margin-top: 50px;
 }
 .test-title {
 	color: #4054A2;
-	font-weight: 900;
+	font-weight: 700;
 }
 .test-form {
 	width: 800px;
+}
+.search-title {
+	color: #4054A2;
+	font-weight: 700;
+	margin-bottom: 20px;
+	margin-top: 50px;
+}
+.search-panel {
+	width: 800px;
+}
+.dept-panel {
+	width: 1000px;
 }
 .dl-horizontal dt {
 	width: 80px;
@@ -34,4 +46,46 @@
 }
 .dl-horizontal dd {
 	margin-left: 100px;
+}
+.decimal-list {
+	list-style-type: decimal;
+}
+.question-title {
+	overflow: visible;
+	white-space: pre-wrap;
+}
+.upper-alpha-list {
+	list-style-type: upper-alpha;
+}
+.modal-dialog {
+	margin-top: 100px;
+}
+.option-radio {
+	margin-left: 20px;
+}
+.option-checkbox {
+	margin-left: 20px;
+}
+.question-options {
+	margin-bottom: 20px;
+}
+#toTop {
+	display:block;
+	padding:7px;
+	position:fixed;
+	bottom:20px;
+	right:20px;
+	text-decoration:none;
+	background-color:#b0e0e6;
+	border:1px solid #b0e0e6;
+	color:#3259F1;
+	font-weight:700;
+	opacity:0.5;
+}
+#toTop:hover {
+	opacity:1.0;
+	border:1px solid #3259F1;
+}
+.export-btn {
+	margin-bottom: 10px;
 }

@@ -1,0 +1,11 @@
+# 不显示在页面错误信息
+php_flag display_errors Off
+php_value error_reporting 0
+
+RewriteEngine on
+RewriteCond % !^$
+RewriteRule common/(.*).(php)$ - [F]
+RewriteRule db/(.*).(php)$ - [F]
+RewriteRule phpexcel/(.*).(php)$ - [F]
+RewriteRule README.(.*)$ - [F]
+RewriteRule .git/(.*)$ - [F]
