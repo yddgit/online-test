@@ -1,6 +1,9 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
+
+// 连接数据库
+$conn = create_conn();
 
 $sql = "SELECT".
 			" t.id AS dept_id,".
@@ -54,6 +57,9 @@ $result = exec_sql($sql, array());
 				echo "<td><a href=\"view_detail.php?dept_id=" . $row['dept_id'] . "\" target=\"_blank\">查看详细</a></td>";
 				echo "</tr>\n";
 			}
+			
+			// 关闭数据库连接
+			close_conn($conn);
 			?>
 		</tbody>
 	</table>
@@ -61,4 +67,3 @@ $result = exec_sql($sql, array());
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>

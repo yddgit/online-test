@@ -1,12 +1,18 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
 
 /** 引入PHPExcel文件 */
 require_once "phpexcel/PHPExcel.php";
 
+// 连接数据库
+$conn = create_conn();
+
 // 将数据导出为Excel
 $objPHPExcel = export_dept_user_num();
+
+// 关闭数据库连接
+close_conn($conn);
 
 // 将创建好的excel文件返回给浏览器
 header('Content-Type: application/vnd.ms-excel');
@@ -205,5 +211,3 @@ function export_dept_score($excel_obj, $sheet_index, $dept_id, $sheet_name) {
 			array(20, 10, 15, 10),
 			array(), $result, $sheet_name);
 }
-
-require 'common/close_conn.inc.php';

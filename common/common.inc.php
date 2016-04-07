@@ -1,20 +1,25 @@
 <?php
-// 数据库主机和端口
-$db_host = 'localhost:3306';
-// 数据库用户
-$db_user = 'root';
-// 数据库密码
-$db_pass = 'root';
-// 数据库名
-$db_name = 'test';
-// 连接数据库
-$conn = mysql_connect($db_host, $db_user, $db_pass);
-// 连接失败报错
-if (!$conn) {
-	die('Could not connect: ' . mysql_error());
+/**
+ * 创建数据库连接
+ */
+function create_conn($db_host = "localhost:3306", $db_user = "root", $db_pass = "root", $db_name = "test") {
+	// 连接数据库
+	$conn = mysql_connect($db_host, $db_user, $db_pass);
+	// 连接失败报错
+	if (!$conn) {
+		die('Could not connect: ' . mysql_error());
+	}
+	// 选择数据库
+	mysql_select_db($db_name, $conn);
+	return $conn;
 }
-// 选择数据库
-mysql_select_db($db_name, $conn);
+
+/**
+ * 关闭数据库连接
+ */
+function close_conn($conn) {
+	mysql_close($conn);
+}
 
 /**
  * 执行SQL语句

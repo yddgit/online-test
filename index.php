@@ -1,4 +1,4 @@
-<?php require 'common/open_conn.inc.php'; ?>
+<?php require_once 'common/common.inc.php'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -27,10 +27,16 @@
 				<select class="form-control validate[required]" id="dept_id" name="dept_id">
 				<option></option>
 				<?php
+				// 连接数据库
+				$conn = create_conn();
+
 				$result = exec_sql( "SELECT t1.id, t1.`name` FROM m_dept AS t1 WHERE t1.valid_flag = '%s'", "1" );
 				while ( $row = mysql_fetch_array( $result ) ) {
 					echo '<option value="' . $row ['id'] . '">' . $row ['name'] . "</option>\n";
 				}
+
+				// 关闭数据库连接
+				close_conn($conn);
 				?>
 				</select>
 			</div>
@@ -57,4 +63,3 @@
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>

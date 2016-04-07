@@ -1,8 +1,11 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
 
 if(!has_auth("POST")) { return; }
+
+// 连接数据库
+$conn = create_conn();
 
 $is_get_score = false;
 $identity_card = check_input($_POST["identity_card"]);
@@ -30,6 +33,8 @@ if($identity_card) {
 }
 
 if(!$is_get_score) {
+	// 关闭数据库连接
+	close_conn($conn);
 	$data = get_error_info(MessageType::DANGER, "暂未没有找到成绩记录。", "index.php", "返回登录页面");
 	load_view("view_error.php", "post", true, $data);
 	return;
@@ -77,7 +82,10 @@ if(!$is_get_score) {
 			</tr>
 		</table>
 	</div>
+	<?php
+	// 关闭数据库连接
+	close_conn($conn);
+	?>
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>

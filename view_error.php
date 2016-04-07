@@ -1,6 +1,6 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
 
 if(!has_auth("POST")) { return; }
 
@@ -24,4 +24,3 @@ if(!isset($_POST['is_error'])) {
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>
