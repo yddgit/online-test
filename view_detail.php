@@ -1,6 +1,9 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
+
+// 连接数据库
+$conn = create_conn();
 
 $dept_id = check_input($_GET["dept_id"]);
 $dept_info = find_dept_by_id($dept_id);
@@ -150,9 +153,11 @@ $user_result = exec_sql($user_sql, $dept_id);
 	</table>
 	<?php } else { ?>
 	<h4 class="text-danger">本部门暂无人参加考试。</h4>
-	<?php }?>
+	<?php }
+	// 关闭数据库连接
+	close_conn($conn);
+	?>
 	</div>
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>

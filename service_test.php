@@ -1,19 +1,26 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
 
 if(!has_auth("POST")) { return; }
+
+// 连接数据库
+$conn = create_conn();
 
 $paper_id = check_input($_POST["paper_id"]);
 $identity_card = check_input($_POST["identity_card"]);
 
 if(is_test($identity_card)) {
+	// 关闭数据库连接
+	close_conn($conn);
 	$data = get_error_info(MessageType::INFO, "您已经参加过考试，可直接查看分数。");
 	$data['identity_card'] = $identity_card;
 	load_view("view_score.php", "post", true, $data);
 	return;
 } else {
 	if(!is_exist($identity_card)) {
+		// 关闭数据库连接
+		close_conn($conn);
 		$data = get_error_info(MessageType::DANGER, "您还未登录过本系统。", "index.php", "请先登录");
 		load_view("view_error.php", "post", true, $data);
 		return;
@@ -80,12 +87,14 @@ if($result1 && $result2 && $result3) {
 	exec_sql("COMMIT", array());
 } else {
 	exec_sql("ROLLBACK", array());
+	// 关闭数据库连接
+	close_conn($conn);
 	$data = get_error_info(MessageType::DANGER, "提交答案出错。", "index.php", "请重新登录答题");
 	load_view("view_error.php", "post", true, $data);
 	return;
 }
 
+// 关闭数据库连接
+close_conn($conn);
 $data['identity_card'] = $identity_card;
 load_view("view_score.php", "post", false, $data);
-
-require 'common/close_conn.inc.php';

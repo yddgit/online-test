@@ -1,18 +1,25 @@
 <?php
 
-require 'common/open_conn.inc.php';
+require_once 'common/common.inc.php';
 
 if(!has_auth("POST")) { return; }
+
+// 连接数据库
+$conn = create_conn();
 
 $identity_card = check_input($_POST["identity_card"]);
 
 if(is_test($identity_card)) {
+	// 关闭数据库连接
+	close_conn($conn);
 	$data = get_error_info(MessageType::INFO, "您已经参加过考试，可直接查看分数。");
 	$data['identity_card'] = $identity_card;
 	load_view("view_score.php", "post", true, $data);
 	return;
 } else {
 	if(!is_exist($identity_card)) {
+		// 关闭数据库连接
+		close_conn($conn);
 		$data = get_error_info(MessageType::DANGER, "您还未登录过本系统。", "index.php", "请先登录");
 		load_view("view_error.php", "post", true, $data);
 		return;
@@ -124,7 +131,10 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
 							</ol>
 						</div>
 					</li>
-					<?php } ?>
+					<?php }
+					// 关闭数据库连接
+					close_conn($conn);
+					?>
 				</ol>
 			</div>
 			<div class="form-group">
@@ -155,4 +165,3 @@ while ( $option = mysql_fetch_array( $options_row ) ) {
     <?php require 'common/javascript.inc.php'; ?>
 </body>
 </html>
-<?php require 'common/close_conn.inc.php'; ?>
